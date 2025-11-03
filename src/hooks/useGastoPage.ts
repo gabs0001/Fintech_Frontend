@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Gasto } from "@/types/gastos";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  listarGastos,
+  cadastrarGasto,
+  atualizarGasto,
+  excluirGasto as excluirGastoAPI
+} from "@/services/gastoService";
 
-export function useGastoPage(initialGastos: Gasto[]) {
-  const [gastos, setGastos] = useState(initialGastos);
+export function useGastoPage() {
+  const { token } = useAuth();
+  const [gastos, setGastos] = useState<Gasto[]>([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState('');
   const [ordenacao, setOrdenacao] = useState<'valor' | 'data' | null>(null);
   const [popupAberto, setPopupAberto] = useState(false);
@@ -11,6 +19,13 @@ export function useGastoPage(initialGastos: Gasto[]) {
   const [drawerAberto, setDrawerAberto] = useState(false);
   const [tituloDrawer, setTituloDrawer] = useState('');
   const [descricaoDrawer, setDescricaoDrawer] = useState('');
+
+  useEffect(() => {
+    if (!token) return;
+    listarGastos(token)
+      .then(setGastos)
+      .catch((err) => console.error("Erro ao listar gastos:", err));
+  }, [token]);
 
   const abrirDrawer = (titulo: string, descricao: string) => {
     setTituloDrawer(titulo);
@@ -26,16 +41,34 @@ export function useGastoPage(initialGastos: Gasto[]) {
     setOverlayAtivo(true);
   };
 
-  const salvarEdicao = () => {
-    if (!gastoEditado) return;
-    setGastos((prev) =>
-      prev.map((g) => (g.id === gastoEditado.id ? gastoEditado : g))
-    );
-    fecharPopup();
+  const salvarEdicao = async () => {
+    if (!gastoEditado || !token) return;
+
+    try {
+      const gastoSalvo = gastoEditado.id
+        ? await atualizarGasto(gastoEditado.id, gastoEditado, token)
+        : await cadastrarGasto(gastoEditado, token);
+
+      setGastos((prev) => {
+        const outros = prev.filter((g) => g.id !== gastoSalvo.id);
+        return [...outros, gastoSalvo];
+      });
+
+      fecharPopup();
+    } catch (err) {
+      console.error("Erro ao salvar gasto:", err);
+    }
   };
 
-  const excluirGasto = (id: number) => {
-    setGastos((prev) => prev.filter((g) => g.id !== id));
+  const excluirGasto = async (id: number) => {
+    if (!token) return;
+
+    try {
+      await excluirGastoAPI(id, token);
+      setGastos((prev) => prev.filter((g) => g.id !== id));
+    } catch (err) {
+      console.error("Erro ao excluir gasto:", err);
+    }
   };
 
   const atualizarCampo = (campo: string, valor: string | number) => {

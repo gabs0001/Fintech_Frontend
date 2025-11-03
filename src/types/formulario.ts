@@ -16,4 +16,6 @@ export type CampoFinanceiro = {
   type: 'text' | 'number' | 'date' | 'time' | 'textarea' | 'select';
   placeholder?: string;
   options?: { value: string; label: string; disabled?: boolean }[];
+  api?: 'categorias-gasto' | 'tipos-investimentos' | 'instituicoes' | 'tipos-recebimento';
+  permitirNovo?: boolean;
 };

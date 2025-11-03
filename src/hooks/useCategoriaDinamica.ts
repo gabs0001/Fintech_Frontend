@@ -6,9 +6,9 @@ type CategoriaConfig = {
 };
 
 export function useCategoriaDinamica({ valorAlvo, classeOpcao }: CategoriaConfig) {
-  const selectRef = useRef<HTMLSelectElement | null>(null);
-  const campoRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const selectRef = useRef<HTMLSelectElement>(null);
+  const campoRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const select = selectRef.current;
@@ -21,7 +21,9 @@ export function useCategoriaDinamica({ valorAlvo, classeOpcao }: CategoriaConfig
     };
 
     select.addEventListener('change', handleChange);
-    return () => select.removeEventListener('change', handleChange);
+    return () => {
+      select.removeEventListener('change', handleChange);
+    };
   }, [valorAlvo]);
 
   const adicionarCategoria = () => {
@@ -32,7 +34,7 @@ export function useCategoriaDinamica({ valorAlvo, classeOpcao }: CategoriaConfig
     if (!select || !input || !campo) return;
 
     const novaCategoria = input.value.trim();
-    if (novaCategoria === '') return;
+    if (!novaCategoria) return;
 
     const opcao = document.createElement('option');
     opcao.value = novaCategoria.toLowerCase();
@@ -50,5 +52,10 @@ export function useCategoriaDinamica({ valorAlvo, classeOpcao }: CategoriaConfig
     input.value = '';
   };
 
-  return { selectRef, campoRef, inputRef, adicionarCategoria };
+  return {
+    selectRef,
+    campoRef,
+    inputRef,
+    adicionarCategoria,
+  };
 }

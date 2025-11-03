@@ -1,8 +1,17 @@
-import { useState } from 'react';
-import { Recebimento } from '@/types/recebimento';
+'use client';
 
-export function useRecebimentoPage(initialRecebimentos: Recebimento[]) {
-  const [recebimentos, setRecebimentos] = useState(initialRecebimentos);
+import { useEffect, useState } from 'react';
+import { Recebimento } from '@/types/recebimento';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  listarRecebimentos,
+  atualizarRecebimento,
+  excluirRecebimento as excluirRecebimentoAPI,
+} from '@/services/recebimentoService';
+
+export function useRecebimentoPage() {
+  const { token } = useAuth();
+  const [recebimentos, setRecebimentos] = useState<Recebimento[]>([]);
   const [tipoSelecionado, setTipoSelecionado] = useState('');
   const [ordenacao, setOrdenacao] = useState<'valor' | 'data' | null>(null);
   const [popupAberto, setPopupAberto] = useState(false);
@@ -11,6 +20,13 @@ export function useRecebimentoPage(initialRecebimentos: Recebimento[]) {
   const [drawerAberto, setDrawerAberto] = useState(false);
   const [tituloDrawer, setTituloDrawer] = useState('');
   const [descricaoDrawer, setDescricaoDrawer] = useState('');
+
+  useEffect(() => {
+    if (!token) return;
+    listarRecebimentos(token)
+      .then(setRecebimentos)
+      .catch((err) => console.error('Erro ao buscar recebimentos:', err));
+  }, [token]);
 
   const abrirDrawer = (titulo: string, descricao: string) => {
     setTituloDrawer(titulo);
@@ -26,16 +42,29 @@ export function useRecebimentoPage(initialRecebimentos: Recebimento[]) {
     setOverlayAtivo(true);
   };
 
-  const salvarEdicao = () => {
-    if (!recebimentoEditado) return;
-    setRecebimentos((prev) =>
-      prev.map((r) => (r.id === recebimentoEditado.id ? recebimentoEditado : r))
-    );
-    fecharPopup();
+  const salvarEdicao = async () => {
+    if (!recebimentoEditado || !token) return;
+
+    try {
+      const atualizado = await atualizarRecebimento(recebimentoEditado.id, recebimentoEditado, token);
+      setRecebimentos((prev) =>
+        prev.map((r) => (r.id === atualizado.id ? atualizado : r))
+      );
+      fecharPopup();
+    } catch (err) {
+      console.error('Erro ao salvar edição:', err);
+    }
   };
 
-  const excluirRecebimento = (id: number) => {
-    setRecebimentos((prev) => prev.filter((r) => r.id !== id));
+  const excluirRecebimento = async (id: number) => {
+    if (!token) return;
+
+    try {
+      await excluirRecebimentoAPI(id, token);
+      setRecebimentos((prev) => prev.filter((r) => r.id !== id));
+    } catch (err) {
+      console.error('Erro ao excluir recebimento:', err);
+    }
   };
 
   const atualizarCampo = (campo: string, valor: string | number) => {

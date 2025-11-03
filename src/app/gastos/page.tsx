@@ -1,7 +1,6 @@
 'use client';
 
 import { useGastoPage } from "@/hooks/useGastoPage";
-import { gastos as gastoData } from "@/data/gastos";
 import { categoriasGasto } from "@/data/categorias";
 import { navItems } from "@/data/nav";
 
@@ -37,105 +36,87 @@ export default function GastoPage() {
     atualizarCampo,
     fecharPopup,
     fecharDrawer
-  } = useGastoPage(gastoData);
+  } = useGastoPage();
 
-  const campos : CampoPopUp[] = [
+  const campos: CampoPopUp[] = [
     { nome: 'categoria', label: 'Categoria', tipo: 'text', valor: gastoEditado?.categoria ?? '' },
     { nome: 'descricao', label: 'Descrição', tipo: 'textarea', valor: gastoEditado?.descricao ?? '' },
     { nome: 'valor', label: 'Valor', tipo: 'number', valor: gastoEditado?.valor ?? 0 },
     { nome: 'data', label: 'Data', tipo: 'date', valor: gastoEditado?.data ?? '', readOnly: true },
-  ]
+  ];
 
   const gastosFiltrados = gastos
-  .filter((g) => {
-    return categoriaSelecionada === 'Mostrar Todos' || categoriaSelecionada === '' || g.categoria === categoriaSelecionada;
-  })
-  .sort((a, b) => {
-    if (ordenacao === 'valor') {
-      return Number(b.valor.replace(/[^\d,.-]/g, '').replace(',', '.')) -
-             Number(a.valor.replace(/[^\d,.-]/g, '').replace(',', '.'));
-    }
-    if (ordenacao === 'data') {
-      return new Date(b.data).getTime() - new Date(a.data).getTime();
-    }
-    return 0;
-  });
+    .filter((g) =>
+      categoriaSelecionada === 'Mostrar Todos' ||
+      categoriaSelecionada === '' ||
+      g.categoria === categoriaSelecionada
+    )
+    .sort((a, b) => {
+      if (ordenacao === 'valor') {
+        return Number(b.valor.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) -
+               Number(a.valor.toString().replace(/[^\d,.-]/g, '').replace(',', '.'));
+      }
+      if (ordenacao === 'data') {
+        return new Date(b.data).getTime() - new Date(a.data).getTime();
+      }
+      return 0;
+   });
 
   return (
     <div className="min-h-screen flex flex-col">
-
-      <Header navItems={ navItems } />
+      <Header navItems={navItems} />
 
       <main className="flex-grow w-full mx-auto my-4">
-        
-        <Cta
-          destaque="gastos" 
-        />
+        <Cta destaque="gastos" />
 
         <section className="w-full mt-6">
-
           <form name="form-gastos" id="form-gastos">
-
             <FiltragemGasto
-              categorias={ categoriasGasto }
-              onCategoriaChange={ setCategoriaSelecionada }
-              onOrdenacaoChange={ setOrdenacao }
+              categorias={categoriasGasto}
+              onCategoriaChange={setCategoriaSelecionada}
+              onOrdenacaoChange={setOrdenacao}
             />
 
             <div className="flex-row justify-center">
-              
               <div className="w-full sm:w-10/12 md:w-10/12 lg:w-9/12 xl:w-8/12 mx-auto">
-                
-                <TableGastos 
-                  gastos={ gastosFiltrados }
-                  onEditar={(gasto) => abrirEdicao(gasto)}
-                  onExcluir={ excluirGasto }
-                  abrirDrawer={ abrirDrawer }
+                <TableGastos
+                  gastos={gastosFiltrados}
+                  onEditar={abrirEdicao}
+                  onExcluir={excluirGasto}
+                  abrirDrawer={abrirDrawer}
                 />
-
               </div>
 
               <DrawerLateral
-                aberto={ drawerAberto }
-                onFechar={ fecharDrawer }
-                titulo={ tituloDrawer }
-                descricao={ descricaoDrawer }
+                aberto={drawerAberto}
+                onFechar={fecharDrawer}
+                titulo={tituloDrawer}
+                descricao={descricaoDrawer}
               />
 
-              <Overlay 
-                ativo={overlayAtivo} 
-                onClick={fecharPopup} 
-              />
+              <Overlay ativo={overlayAtivo} onClick={fecharPopup} />
 
               <JanelaPopUp
-                aberto={ popupAberto }
-                onFechar={ fecharPopup }
-                onSalvar={ salvarEdicao }
-                onChange={ (campo, valor) => atualizarCampo(campo, valor) }
-                campos={ campos }
+                aberto={popupAberto}
+                onFechar={fecharPopup}
+                onSalvar={salvarEdicao}
+                onChange={(campo, valor) => atualizarCampo(campo, valor)}
+                campos={campos}
               />
 
               <GastoCard
-                gastos={ gastosFiltrados }
-                onEditar={ abrirEdicao }
-                onExcluir={ excluirGasto }
+                gastos={gastosFiltrados}
+                onEditar={abrirEdicao}
+                onExcluir={excluirGasto}
               />
-              
             </div>
 
-            <BotaoAdicionar 
-              texto="Novo Gasto" 
-              href="/gastos/novo"
-            /> 
-
+            <BotaoAdicionar texto="Novo Gasto" href="/gastos/novo" />
           </form>
-
         </section>
-
       </main>
 
       <Footer />
-
     </div>
   );
 }

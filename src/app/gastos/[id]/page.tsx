@@ -1,36 +1,48 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { buscarGastoPorId } from '@/services/gastoService';
 import PaginaDetalhe from '@/components/shared/PaginaDetalhe';
-
-const transacoesMock = [
-  { id: '1', nome: 'Aluguel', categoria: 'moradia', valor: 1200 },
-  { id: '2', nome: 'Academia', categoria: 'saúde', valor: 150 },
-];
+import FormularioFinanceiro from '@/components/shared/FormularioFinanceiro';
+import { Gasto } from '@/types/gastos';
 
 export default function DetalheGastoPage() {
   const { id } = useParams();
-  const transacao = transacoesMock.find((t) => t.id === id);
+  const { token } = useAuth();
+  const [gasto, setGasto] = useState<Gasto | null>(null);
+  const [erro, setErro] = useState(false);
 
-  if (!transacao) {
-    return <PaginaDetalhe titulo="Transação não encontrada">ID inválido ou inexistente.</PaginaDetalhe>;
+  useEffect(() => {
+    if (!token || !id) return;
+
+    buscarGastoPorId(Number(id), token)
+      .then(setGasto)
+      .catch(() => setErro(true));
+  }, [id, token]);
+
+  if (erro) {
+    return (
+      <PaginaDetalhe titulo="Transação não encontrada">
+        ID inválido ou inexistente.
+      </PaginaDetalhe>
+    );
   }
 
-  const gasto = {
-    nome: 'Aluguel',
-    categoria: 'moradia',
-    valor: 1200,
-    data: '2025-11-01',
-    descricao: 'Pagamento do aluguel mensal',
-    hora: '10:00',
-  };
+  if (!gasto) {
+    return (
+      <PaginaDetalhe titulo="Carregando gasto...">
+        Aguarde enquanto buscamos os dados.
+      </PaginaDetalhe>
+    );
+  }
 
   return (
-    <PaginaDetalhe titulo="Detalhes do Gasto" voltarPara="/gastos">
-      <p className="text-white"><strong>Categoria:</strong> {gasto.categoria}</p>
-      <p className="text-white"><strong>Valor:</strong> R$ {gasto.valor}</p>
-      <p className="text-white"><strong>Data:</strong> {gasto.data} às {gasto.hora}</p>
-      <p className="text-white"><strong>Descrição:</strong> {gasto.descricao}</p>
-    </PaginaDetalhe>
+    <div className="min-h-screen flex flex-col bg-[#0c5270] text-white font-sans">
+      <PaginaDetalhe titulo="Editar Gasto" voltarPara="/gastos">
+        <FormularioFinanceiro tipo="gasto" modo="editar" gasto={gasto} />
+      </PaginaDetalhe>
+    </div>
   );
 }

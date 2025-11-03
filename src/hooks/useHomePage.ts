@@ -1,28 +1,45 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { getDashboard, getTotalInvestido, getUltimoGasto } from '@/services/dashboardService';
 import { Recebimento } from '@/types/recebimento';
 import { Gasto } from '@/types/gastos';
 
-export function useHomePage(initialRecebimentos: Recebimento[], initialGastos: Gasto[]) {
-  const [recebimentos, setRecebimentos] = useState(initialRecebimentos);
-  const [gastos, setGastos] = useState(initialGastos);
+export function useHomePage() {
+  const { token } = useAuth();
+  const [recebimentos, setRecebimentos] = useState<Recebimento[]>([]);
+  const [gastos, setGastos] = useState<Gasto[]>([]);
+  const [saldoMes, setSaldoMes] = useState(0);
+  const [totalInvestido, setTotalInvestido] = useState(0);
+  const [ultimoGasto, setUltimoGasto] = useState<number>(0);
 
   const parseValor = (valor: string | number) =>
-  typeof valor === 'string'
-    ? Number(valor.replace(/[^\d,-]/g, '').replace(',', '.'))
-    : valor;
+    typeof valor === 'string'
+      ? Number(valor.replace(/[^\d,-]/g, '').replace(',', '.'))
+      : valor;
 
-  const saldoMes =
-  recebimentos.reduce((acc, r) => acc + parseValor(r.valor), 0) -
-  gastos.reduce((acc, g) => acc + parseValor(g.valor), 0);
+  useEffect(() => {
+    if (!token) return;
 
-  const totalInvestido = 0;
+    const hoje = new Date();
+    const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
+    const fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().split('T')[0];
 
-  const ultimoGasto = gastos.length
-  ? parseValor(
-      [...gastos]
-        .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())[0].valor
-    )
-  : 0;
+    getDashboard(token, inicio, fim, 5)
+      .then((data) => {
+        setRecebimentos(data.recebimentos || []);
+        setGastos(data.gastos || []);
+        setSaldoMes(data.saldoMes || 0);
+      })
+      .catch((err) => console.error('Erro ao buscar dashboard:', err));
+
+    getTotalInvestido(token)
+      .then((valor) => setTotalInvestido(parseValor(valor)))
+      .catch((err) => console.error('Erro ao buscar total investido:', err));
+
+    getUltimoGasto(token)
+      .then((gasto) => setUltimoGasto(parseValor(gasto.valor)))
+      .catch(() => setUltimoGasto(0));
+  }, [token]);
 
   const abrirDrawer = (titulo: string, descricao: string) => {
     console.log('Abrir drawer:', titulo, descricao);

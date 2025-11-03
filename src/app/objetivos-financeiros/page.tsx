@@ -7,127 +7,104 @@ import FiltragemObjetivo from "@/components/objetivos-financeiros/FiltragemObjet
 import BotaoAdicionar from "@/components/shared/BotaoAdicionar";
 import { navItems } from "@/data/nav";
 import { useObjetivoPage } from "@/hooks/useObjetivoPage";
-import { objetivoData } from "@/data/objetivos";
 import DrawerLateral from "@/components/shared/DrawerLateral";
 import Overlay from "@/components/shared/Overlay";
 import JanelaPopUp from "@/components/shared/JanelaPopUp";
 import { CampoPopUp } from "@/types/gastos";
-import TableObjetivos from "../../components/objetivos-financeiros/TableObjetivos";
+import TableObjetivos from "@/components/objetivos-financeiros/TableObjetivos";
 import ObjetivoCard from "@/components/objetivos-financeiros/cards/ObjetivoCard";
 
 export default function ObjetivosFinanceirosPage() {
-    const {
-        objetivos,
-        buscaPorNome,
-        setBuscaPorNome,
-        ordenacao,
-        setOrdenacao,
-        popupAberto,
-        overlayAtivo,
-        objetivoEditado,
-        abrirEdicao,
-        salvarEdicao,
-        excluirObjetivo,
-        atualizarCampo,
-        fecharPopup,
-        drawerAberto,
-        abrirDrawer,
-        fecharDrawer,
-        tituloDrawer,
-        descricaoDrawer,
-    } = useObjetivoPage(objetivoData);
+  const {
+    objetivos,
+    buscaPorNome,
+    setBuscaPorNome,
+    ordenacao,
+    setOrdenacao,
+    popupAberto,
+    overlayAtivo,
+    objetivoEditado,
+    abrirEdicao,
+    salvarEdicao,
+    excluirObjetivo,
+    atualizarCampo,
+    fecharPopup,
+    drawerAberto,
+    abrirDrawer,
+    fecharDrawer,
+    tituloDrawer,
+    descricaoDrawer,
+  } = useObjetivoPage();
 
-    const campos : CampoPopUp[] = [
-        { nome: 'nome', label: 'Nome', tipo: 'text', valor: objetivoEditado?.nome ?? '' },
-        { nome: 'descricao', label: 'Descrição', tipo: 'textarea', valor: objetivoEditado?.descricao ?? '' },
-        { nome: 'valor', label: 'Valor', tipo: 'number', valor: objetivoEditado?.valor ?? 0 },
-        { nome: 'data', label: 'Data', tipo: 'date', valor: objetivoEditado?.data ?? '', readOnly: true },
-    ]
+  const campos: CampoPopUp[] = [
+    { nome: 'nome', label: 'Nome', tipo: 'text', valor: objetivoEditado?.nome ?? '' },
+    { nome: 'descricao', label: 'Descrição', tipo: 'textarea', valor: objetivoEditado?.descricao ?? '' },
+    { nome: 'valor', label: 'Valor', tipo: 'number', valor: objetivoEditado?.valor ?? 0 },
+    { nome: 'data', label: 'Data', tipo: 'date', valor: objetivoEditado?.data ?? '', readOnly: true },
+  ];
 
-    const objetivosFiltrados = objetivos
+  const objetivosFiltrados = objetivos
     .filter((o) => o.nome.toLowerCase().includes(buscaPorNome.toLowerCase()))
     .sort((a, b) => {
-        if (ordenacao === 'valor') return b.valor - a.valor;
-        if (ordenacao === 'data') return new Date(b.data).getTime() - new Date(a.data).getTime();
-        return 0;
+      if (ordenacao === 'valor') return b.valor - a.valor;
+      if (ordenacao === 'data') return new Date(b.data).getTime() - new Date(a.data).getTime();
+      return 0;
     });
 
-    return (
-        <div className="min-h-screen flex flex-col">
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header navItems={navItems} />
 
-            <Header
-                navItems={ navItems }
+      <main className="flex-grow w-full mx-auto my-4">
+        <Cta destaque="objetivos financeiros" />
+
+        <section className="w-full mt-6">
+          <form name="form-objetivos" id="form-objetivos">
+            <FiltragemObjetivo
+              onBuscaChange={setBuscaPorNome}
+              onOrdenacaoChange={setOrdenacao}
             />
 
-            <main className="flex-grow w-full mx-auto my-4">
-
-                <Cta
-                    destaque="objetivos financeiros"
+            <div className="flex-row justify-center">
+              <div className="w-full sm:w-10/12 md:w-10/12 lg:w-9/12 xl:w-8/12 mx-auto">
+                <TableObjetivos
+                  objetivos={objetivosFiltrados}
+                  onEditar={abrirEdicao}
+                  onExcluir={excluirObjetivo}
+                  abrirDrawer={abrirDrawer}
                 />
+              </div>
 
-                <section className="w-full mt-6">
+              <DrawerLateral
+                aberto={drawerAberto}
+                onFechar={fecharDrawer}
+                titulo={tituloDrawer}
+                descricao={descricaoDrawer}
+              />
 
-                    <form name="form-objetivos" id="form-objetivos">
+              <Overlay ativo={overlayAtivo} onClick={fecharPopup} />
 
-                        <FiltragemObjetivo
-                            onBuscaChange={ setBuscaPorNome }
-                            onOrdenacaoChange={ setOrdenacao }
-                        />
-                        <div className="flex-row justify-center">
-                            
-                            <div className="w-full sm:w-10/12 md:w-10/12 lg:w-9/12 xl:w-8/12 mx-auto">
+              <JanelaPopUp
+                aberto={popupAberto}
+                onFechar={fecharPopup}
+                onSalvar={salvarEdicao}
+                onChange={(campo, valor) => atualizarCampo(campo, valor)}
+                campos={campos}
+              />
 
-                                <TableObjetivos
-                                    objetivos={ objetivosFiltrados }
-                                    onEditar={ abrirEdicao }
-                                    onExcluir={ excluirObjetivo }
-                                    abrirDrawer={ abrirDrawer }
-                                />
+              <ObjetivoCard
+                objetivos={objetivosFiltrados}
+                onEditar={abrirEdicao}
+                onExcluir={excluirObjetivo}
+              />
+            </div>
 
-                            </div>
+            <BotaoAdicionar texto="Novo Objetivo" href="/objetivos-financeiros/novo" />
+          </form>
+        </section>
+      </main>
 
-                            <DrawerLateral
-                                aberto={ drawerAberto }
-                                onFechar={ fecharDrawer }
-                                titulo={ tituloDrawer }
-                                descricao={ descricaoDrawer }
-                            />
-
-                            <Overlay
-                                ativo={ overlayAtivo }
-                                onClick={ fecharPopup }
-                            />
-                            
-                            <JanelaPopUp
-                                aberto={ popupAberto }
-                                onFechar={ fecharPopup }
-                                onSalvar={ salvarEdicao }
-                                onChange={(campo, valor) => atualizarCampo(campo, valor) }
-                                campos={ campos }
-                            />
-                            
-                            <ObjetivoCard
-                                objetivos={ objetivosFiltrados }
-                                onEditar={ abrirEdicao }
-                                onExcluir={ excluirObjetivo }
-                            />
-
-                        </div>
-
-                        <BotaoAdicionar 
-                            texto="Novo Objetivo" 
-                            href="/objetivos-financeiros/novo"
-                        />
-
-                    </form>
-
-                </section>
-
-
-            </main>
-
-            <Footer />
-
-        </div>
-    )
+      <Footer />
+    </div>
+  );
 }

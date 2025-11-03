@@ -1,23 +1,105 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { useFormularioFinanceiro } from '@/hooks/useFormularioFinanceiro';
 import { useCategoriaDinamica } from '@/hooks/useCategoriaDinamica';
 import CampoNovaCategoria from './CampoNovaCategoria';
 import { getCamposPorTipo } from '@/utils/camposFinanceiros';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  listarCategoriasGasto,
+  cadastrarCategoriaGasto,
+} from '@/services/categoriaGastoService';
+import { listarTiposInvestimento } from '@/services/tipoInvestimentoService';
+import { listarInstituicoes } from '@/services/instituicaoService';
+import { listarTiposRecebimento } from '@/services/tipoRecebimento';
 
 type FormularioFinanceiroProps = {
   tipo: 'gasto' | 'recebimento' | 'investimento' | 'objetivo';
+  modo?: 'novo' | 'editar';
+  gasto?: any;
 };
 
-export default function FormularioFinanceiro({ tipo }: FormularioFinanceiroProps) {
-  const { selectRef, campoRef, inputRef, adicionarCategoria } = useCategoriaDinamica({
+export default function FormularioFinanceiro({ tipo, modo = 'novo', gasto }: FormularioFinanceiroProps) {
+  const { token } = useAuth();
+  const { formData, handleChange, handleSubmit } = useFormularioFinanceiro({ tipo, modo, gasto });
+
+  const { selectRef, campoRef, inputRef } = useCategoriaDinamica({
     valorAlvo: 'outros',
     classeOpcao: `option-tipo-${tipo}`,
   });
 
-  const { formData, handleChange, handleSubmit } = useFormularioFinanceiro(tipo);
-
   const campos = getCamposPorTipo(tipo);
+  const [opcoesDinamicas, setOpcoesDinamicas] = useState<Record<string, string[]>>({});
+
+  useEffect(() => {
+    if (!token) return;
+
+    const carregarOpcoes = async () => {
+      const novasOpcoes: Record<string, string[]> = {};
+
+      for (const campo of campos) {
+        if (campo.type !== 'select' || !campo.api) continue;
+
+        try {
+          let resultado: any[] = [];
+
+          if (campo.api === 'categorias-gasto') {
+            resultado = await listarCategoriasGasto(token);
+            novasOpcoes[campo.name] = resultado.map((c) => c.nome);
+          }
+
+          if (campo.api === 'tipos-investimentos') {
+            resultado = await listarTiposInvestimento(token);
+            novasOpcoes[campo.name] = resultado.map((t) => t.nome);
+          }
+
+          if (campo.api === 'instituicoes') {
+            resultado = await listarInstituicoes(token);
+            novasOpcoes[campo.name] = resultado.map((i) => i.nome);
+          }
+
+          if (campo.api === 'tipos-recebimento') {
+            resultado = await listarTiposRecebimento(token);
+            novasOpcoes[campo.name] = resultado.map((r) => r.nome);
+          }
+        } catch (err) {
+          console.error(`Erro ao carregar opções para ${campo.name}:`, err);
+        }
+      }
+
+      setOpcoesDinamicas(novasOpcoes);
+    };
+
+    carregarOpcoes();
+  }, [token, tipo]);
+
+  const adicionarCategoria = async () => {
+    const nome = inputRef.current?.value?.trim();
+    if (!nome || !token) return;
+
+    try {
+      await cadastrarCategoriaGasto({ nome }, token);
+      setOpcoesDinamicas((prev) => ({
+        ...prev,
+        categoria: [...(prev.categoria || []), nome],
+      }));
+      if (inputRef.current) {
+        inputRef.current.value = '';
+      }
+      campoRef.current?.classList.add('hidden');
+    } catch (err) {
+      console.error('Erro ao adicionar nova categoria:', err);
+    }
+  };
+
+  const toggleCampoCategoria = (campoNome: string, valor: string) => {
+    if (campoNome === 'categoria' && valor === 'outros') {
+      campoRef.current?.classList.remove('hidden');
+    } else {
+      campoRef.current?.classList.add('hidden');
+    }
+  };
 
   return (
     <form
@@ -33,27 +115,31 @@ export default function FormularioFinanceiro({ tipo }: FormularioFinanceiroProps
           {campo.type === 'select' ? (
             <>
               <select
-                ref={ selectRef }
-                id={`tipo-${tipo}`}
-                name="categoria"
-                value={formData.categoria}
-                onChange={handleChange}
+                ref={campo.name === 'categoria' ? selectRef : undefined}
+                id={campo.name}
+                name={campo.name}
+                value={formData[campo.name]}
+                onChange={(e) => {
+                  handleChange(e);
+                  toggleCampoCategoria(campo.name, e.target.value);
+                }}
                 required
                 className="bg-white text-black px-3 py-2 rounded-md"
               >
-                {campo.options?.map((opt) => (
-                  <option key={opt.value} value={opt.value} disabled={opt.disabled}>
-                    {opt.label}
-                  </option>
+                <option value="" disabled>Selecione</option>
+                {(opcoesDinamicas[campo.name] || []).map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
                 ))}
+                {campo.permitirNovo && <option value="outros">+ Nova opção</option>}
               </select>
 
-              <CampoNovaCategoria
-                campoRef={ campoRef }
-                inputRef={ inputRef }
-                adicionarCategoria={ adicionarCategoria }
-              />
-              
+              {campo.name === 'categoria' && campo.permitirNovo && (
+                <CampoNovaCategoria
+                  campoRef={campoRef}
+                  inputRef={inputRef}
+                  adicionarCategoria={adicionarCategoria}
+                />
+              )}
             </>
           ) : campo.type === 'textarea' ? (
             <textarea
@@ -86,7 +172,7 @@ export default function FormularioFinanceiro({ tipo }: FormularioFinanceiroProps
           type="submit"
           className="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-6 py-2 rounded-full"
         >
-          Adicionar { tipo }
+          Adicionar {tipo}
         </button>
       </div>
     </form>

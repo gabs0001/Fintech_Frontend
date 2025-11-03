@@ -1,8 +1,17 @@
-import { useState } from 'react';
-import { Objetivo } from '@/types/objetivo';
+'use client';
 
-export function useObjetivoPage(initialObjetivos: Objetivo[]) {
-  const [objetivos, setObjetivos] = useState(initialObjetivos);
+import { useEffect, useState } from 'react';
+import { Objetivo } from '@/types/objetivo';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  listarObjetivosFinanceiros,
+  atualizarObjetivoFinanceiro,
+  excluirObjetivoFinanceiro,
+} from '@/services/objetivoFinanceiroService';
+
+export function useObjetivoPage() {
+  const { token } = useAuth();
+  const [objetivos, setObjetivos] = useState<Objetivo[]>([]);
   const [buscaPorNome, setBuscaPorNome] = useState('');
   const [ordenacao, setOrdenacao] = useState<'valor' | 'data' | null>(null);
   const [popupAberto, setPopupAberto] = useState(false);
@@ -11,6 +20,14 @@ export function useObjetivoPage(initialObjetivos: Objetivo[]) {
   const [drawerAberto, setDrawerAberto] = useState(false);
   const [tituloDrawer, setTituloDrawer] = useState('');
   const [descricaoDrawer, setDescricaoDrawer] = useState('');
+
+  useEffect(() => {
+    if (!token) return;
+
+    listarObjetivosFinanceiros(token)
+      .then(setObjetivos)
+      .catch((err) => console.error('Erro ao buscar objetivos:', err));
+  }, [token]);
 
   const abrirDrawer = (titulo: string, descricao: string) => {
     setTituloDrawer(titulo);
@@ -26,16 +43,29 @@ export function useObjetivoPage(initialObjetivos: Objetivo[]) {
     setOverlayAtivo(true);
   };
 
-  const salvarEdicao = () => {
-    if (!objetivoEditado) return;
-    setObjetivos((prev) =>
-      prev.map((o) => (o.id === objetivoEditado.id ? objetivoEditado : o))
-    );
-    fecharPopup();
+  const salvarEdicao = async () => {
+    if (!objetivoEditado || !token) return;
+
+    try {
+      const atualizado = await atualizarObjetivoFinanceiro(objetivoEditado.id, objetivoEditado, token);
+      setObjetivos((prev) =>
+        prev.map((o) => (o.id === atualizado.id ? atualizado : o))
+      );
+      fecharPopup();
+    } catch (err) {
+      console.error('Erro ao salvar objetivo:', err);
+    }
   };
 
-  const excluirObjetivo = (id: number) => {
-    setObjetivos((prev) => prev.filter((o) => o.id !== id));
+  const excluirObjetivo = async (id: number) => {
+    if (!token) return;
+
+    try {
+      await excluirObjetivoFinanceiro(id, token);
+      setObjetivos((prev) => prev.filter((o) => o.id !== id));
+    } catch (err) {
+      console.error('Erro ao excluir objetivo:', err);
+    }
   };
 
   const atualizarCampo = (campo: string, valor: string | number) => {

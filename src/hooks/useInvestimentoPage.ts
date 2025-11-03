@@ -1,22 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Investimento } from '@/types/investimento';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  listarInvestimentos,
+  atualizarInvestimento,
+  cadastrarInvestimento,
+  excluirInvestimento as excluirInvestimentoAPI
+} from '@/services/investimentoService';
 
-export function useInvestimentoPage(data: Investimento[]) {
-  const [investimentos, setInvestimentos] = useState<Investimento[]>(data);
+export function useInvestimentoPage() {
+  const { token } = useAuth();
+  const [investimentos, setInvestimentos] = useState<Investimento[]>([]);
   const [tipoSelecionado, setTipoSelecionado] = useState<string>('');
   const [buscaPorNome, setBuscaPorNome] = useState<string>('');
   const [ordenacao, setOrdenacao] = useState<'banco' | 'corretora' | 'data' | null>(null);
 
   const [popupAberto, setPopupAberto] = useState(false);
   const [overlayAtivo, setOverlayAtivo] = useState(false);
-
   const [investimentoEditado, setInvestimentoEditado] = useState<Investimento | null>(null);
+
+  useEffect(() => {
+    if (!token) return;
+    listarInvestimentos(token)
+      .then(setInvestimentos)
+      .catch((err) => console.error('Erro ao buscar investimentos:', err));
+  }, [token]);
 
   const abrirPopup = (investimento: Investimento) => {
     setInvestimentoEditado(investimento);
     setPopupAberto(true);
+    setOverlayAtivo(true);
   };
 
   const fecharPopup = () => {
@@ -29,16 +44,34 @@ export function useInvestimentoPage(data: Investimento[]) {
     setInvestimentoEditado((prev) => prev ? { ...prev, [campo]: valor } : prev);
   };
 
-  const salvarEdicao = () => {
-    if (!investimentoEditado) return;
-    setInvestimentos((prev) =>
-      prev.map((i) => (i.id === investimentoEditado.id ? investimentoEditado : i))
-    );
-    fecharPopup();
+  const salvarEdicao = async () => {
+    if (!investimentoEditado || !token) return;
+
+    try {
+      const investimentoSalvo = investimentoEditado.id
+        ? await atualizarInvestimento(investimentoEditado.id, investimentoEditado, token)
+        : await cadastrarInvestimento(investimentoEditado, token);
+
+      setInvestimentos((prev) => {
+        const outros = prev.filter((i) => i.id !== investimentoSalvo.id);
+        return [...outros, investimentoSalvo];
+      });
+
+      fecharPopup();
+    } catch (err) {
+      console.error('Erro ao salvar investimento:', err);
+    }
   };
 
-  const excluirInvestimento = (id: number) => {
-    setInvestimentos((prev) => prev.filter((i) => i.id !== id));
+  const excluirInvestimento = async (id: number) => {
+    if (!token) return;
+
+    try {
+      await excluirInvestimentoAPI(id, token);
+      setInvestimentos((prev) => prev.filter((i) => i.id !== id));
+    } catch (err) {
+      console.error('Erro ao excluir investimento:', err);
+    }
   };
 
   return {

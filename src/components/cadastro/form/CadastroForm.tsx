@@ -2,9 +2,11 @@
 
 import { useCadastroForm } from '@/hooks/useCadastroForm';
 import { CadastroField } from '@/types/cadastro';
+import { useRouter } from 'next/navigation';
 
 export default function CadastroForm() {
-  const { formData, handleChange, handleSubmit } = useCadastroForm();
+  const { formData, handleChange, handleSubmit, erro } = useCadastroForm(); //revisar esse erro
+  const router = useRouter();
 
   const fields: CadastroField[] = [
     { label: 'Nome', name: 'nome', type: 'text', placeholder: 'Digite seu nome completo' },
@@ -15,17 +17,17 @@ export default function CadastroForm() {
       type: 'select',
       options: [
         { value: '', label: 'Selecione uma opção', disabled: true },
-        { value: 'masculino', label: 'Masculino' },
-        { value: 'feminino', label: 'Feminino' },
+        { value: 'MASCULINO', label: 'Masculino' },
+        { value: 'FEMININO', label: 'Feminino' },
+        { value: 'OUTRO', label: 'Outro' },
       ],
     },
     { label: 'Email', name: 'email', type: 'email', placeholder: 'email123@email.com' },
     { label: 'Senha', name: 'senha', type: 'password', placeholder: 'Digite sua senha...' },
-    { label: 'Confirme sua senha', name: 'confirmaSenha', type: 'password', placeholder: 'Digite novamente sua senha...' },
   ];
 
   return (
-    <form 
+    <form
       onSubmit={handleSubmit}
       className="mx-auto w-full sm:max-w-md bg-white/10 border border-white/20 rounded-xl p-6 space-y-6"
     >
@@ -64,6 +66,8 @@ export default function CadastroForm() {
         </div>
       ))}
 
+      {erro && <p className="text-red-400 text-sm">{erro}</p>}
+
       <div className="flex justify-center">
         <button
           type="submit"
@@ -76,16 +80,14 @@ export default function CadastroForm() {
       <div className="text-center mt-6">
         <p>
           Já possui conta?{' '}
-          <span className="font-bold underline cursor-pointer hover:text-teal-300">
+          <button
+            type="button"
+            onClick={() => router.push('/login')}
+            className="font-bold underline cursor-pointer hover:text-teal-300"
+          >
             Faça login!
-          </span>
+          </button>
         </p>
-        <button
-          type="button"
-          className="mt-2 bg-[#863b3b] hover:bg-[#642c2c] text-white px-10 py-2 rounded-full"
-        >
-          Login
-        </button>
       </div>
     </form>
   );

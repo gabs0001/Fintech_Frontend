@@ -19,15 +19,18 @@ export default function CampoNovaCategoria({
       id="novaCategoriaDiv"
       className="hidden flex flex-col items-center mt-4"
     >
-      <label htmlFor="outros" className="text-sm font-medium">
-        Digite a categoria:
+      <label htmlFor="novaCategoriaInput" className="text-sm font-medium">
+        Digite a nova categoria:
       </label>
+
       <input
         ref={inputRef}
-        id="outros"
+        id="novaCategoriaInput"
         type="text"
-        className="bg-white text-black px-3 py-2 rounded-md ml-6"
+        placeholder="Ex: Bônus, Freelance..."
+        className="bg-white text-black px-3 py-2 rounded-md mt-2 w-full max-w-xs"
       />
+
       <button
         type="button"
         onClick={adicionarCategoria}
