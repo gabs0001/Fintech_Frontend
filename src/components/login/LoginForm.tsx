@@ -2,9 +2,11 @@
 
 import { useLoginForm } from '@/hooks/useLoginForm';
 import { LoginField } from '@/types/login';
+import { useRouter } from 'next/navigation';
 
 export default function LoginForm() {
   const { formData, handleChange, handleSubmit } = useLoginForm();
+  const router = useRouter();
 
   const fields: LoginField[] = [
     { label: 'Email', name: 'email', type: 'email', placeholder: 'email123@email.com' },
@@ -46,12 +48,17 @@ export default function LoginForm() {
       <div className="text-center mt-6">
         <p>
           Ainda não tem conta?{' '}
-          <span className="font-bold underline cursor-pointer hover:text-teal-300">
+          <button
+            type="button"
+            onClick={() => router.push('/cadastro')}
+            className="font-bold underline cursor-pointer hover:text-teal-300"
+          >
             Cadastre-se!
-          </span>
+          </button>
         </p>
         <button
           type="button"
+          onClick={() => router.push('/cadastro')}
           className="mt-2 bg-teal-600 hover:bg-teal-700 text-white px-8 py-2 rounded-full"
         >
           Cadastre-se

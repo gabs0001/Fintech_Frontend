@@ -1,10 +1,18 @@
 'use client';
 
 import { TableGastosProps } from '@/types/gastos';
-import BotaoAcao from './buttons/BotaoAcao';
+import BotaoAcao from '../shared/BotaoAcao';
 import CelulaDescricao from '../shared/CelulaDescricao';
 
-export default function TableGastos({ gastos, onEditar, onExcluir, abrirDrawer } : TableGastosProps) {
+export default function TableGastos({ gastos, onEditar, onExcluir, abrirDrawer }: TableGastosProps) {
+  if(!gastos.length) {
+    return (
+      <div className="hidden sm:block text-center text-white mt-6">
+        Nenhum gasto encontrado.
+      </div>
+    );
+  }
+
   return (
     <div className="my-6 overflow-x-auto hidden sm:block">
       <table className="min-w-full bg-[#077a7d33] border border-[rgba(245,238,221,0.6)] rounded-md shadow-sm">
@@ -19,16 +27,16 @@ export default function TableGastos({ gastos, onEditar, onExcluir, abrirDrawer }
         </thead>
         <tbody className="text-sm text-white">
           {gastos.map((gasto) => (
-            <tr key={gasto.id} className="border-t">
+            <tr key={gasto.id} className="border-t border-white/20">
               <td className="px-4 py-3">{gasto.categoria}</td>
               <td className="px-4 py-3">
                 <CelulaDescricao
                   texto={gasto.descricao}
                   titulo={`Detalhes de ${gasto.categoria}`}
-                  abrirDrawer={ abrirDrawer }
+                  abrirDrawer={abrirDrawer}
                 />
               </td>
-              <td className="px-4 py-3">{gasto.valor}</td>
+              <td className="px-4 py-3">R$ {gasto.valor}</td>
               <td className="px-4 py-3">{gasto.data}</td>
               <td className="px-4 py-3 text-center">
                 <div className="flex justify-center gap-2">

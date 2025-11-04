@@ -1,13 +1,21 @@
 'use client';
 
 import { TableInvestimentosProps } from '@/types/investimento';
-import BotaoAcao from '../gastos/buttons/BotaoAcao';
+import BotaoAcao from '../shared/BotaoAcao';
 
 export default function TableInvestimentos({
   investimentos,
   onEditar,
   onExcluir,
 }: TableInvestimentosProps) {
+  if (!investimentos.length) {
+    return (
+      <div className="hidden sm:block text-center text-white mt-6">
+        Nenhum investimento encontrado.
+      </div>
+    );
+  }
+
   return (
     <div className="my-6 overflow-x-auto hidden sm:block">
       <table className="min-w-full bg-[#077a7d33] border border-[rgba(245,238,221,0.6)] rounded-md shadow-sm text-[#f5eedd] text-sm">
@@ -23,9 +31,9 @@ export default function TableInvestimentos({
             <th className="px-4 py-2 text-center">Ações</th>
           </tr>
         </thead>
-        <tbody className="text-sm font-medium">
+        <tbody className="text-sm font-medium text-white">
           {investimentos.map((inv) => (
-            <tr key={inv.id} className="border-t border-[var(--item-color)] text-center">
+            <tr key={inv.id} className="border-t border-white/20 text-center">
               <td className="px-4 py-3">{inv.nome}</td>
               <td className="px-4 py-3">{inv.tipo}</td>
               <td className="px-4 py-3">R$ {inv.valor.toFixed(2)}</td>

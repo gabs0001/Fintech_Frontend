@@ -20,7 +20,11 @@ type FormularioFinanceiroProps = {
   gasto?: any;
 };
 
-export default function FormularioFinanceiro({ tipo, modo = 'novo', gasto }: FormularioFinanceiroProps) {
+export default function FormularioFinanceiro({
+  tipo,
+  modo = 'novo',
+  gasto,
+}: FormularioFinanceiroProps) {
   const { token } = useAuth();
   const { formData, handleChange, handleSubmit } = useFormularioFinanceiro({ tipo, modo, gasto });
 
@@ -84,9 +88,7 @@ export default function FormularioFinanceiro({ tipo, modo = 'novo', gasto }: For
         ...prev,
         categoria: [...(prev.categoria || []), nome],
       }));
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
+      if (inputRef.current) inputRef.current.value = '';
       campoRef.current?.classList.add('hidden');
     } catch (err) {
       console.error('Erro ao adicionar nova categoria:', err);
@@ -104,11 +106,12 @@ export default function FormularioFinanceiro({ tipo, modo = 'novo', gasto }: For
   return (
     <form
       onSubmit={handleSubmit}
+      aria-label={`Formulário de ${modo === 'editar' ? 'edição' : 'criação'} de ${tipo}`}
       className="mx-auto w-full sm:max-w-md bg-white/10 border border-white/20 rounded-xl p-6 space-y-6"
     >
       {campos.map((campo) => (
         <div key={campo.name} className="flex flex-col gap-2">
-          <label htmlFor={campo.name} className="text-sm font-medium">
+          <label htmlFor={campo.name} className="text-sm font-medium text-white">
             {campo.label}
           </label>
 
@@ -124,7 +127,7 @@ export default function FormularioFinanceiro({ tipo, modo = 'novo', gasto }: For
                   toggleCampoCategoria(campo.name, e.target.value);
                 }}
                 required
-                className="bg-white text-black px-3 py-2 rounded-md"
+                className="bg-white text-black px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
               >
                 <option value="" disabled>Selecione</option>
                 {(opcoesDinamicas[campo.name] || []).map((opt) => (
@@ -150,7 +153,7 @@ export default function FormularioFinanceiro({ tipo, modo = 'novo', gasto }: For
               placeholder={campo.placeholder}
               rows={4}
               required
-              className="bg-white text-black px-3 py-2 rounded-md"
+              className="bg-white text-black px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
           ) : (
             <input
@@ -161,7 +164,7 @@ export default function FormularioFinanceiro({ tipo, modo = 'novo', gasto }: For
               onChange={handleChange}
               placeholder={campo.placeholder}
               required
-              className="bg-white text-black px-3 py-2 rounded-md"
+              className="bg-white text-black px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
           )}
         </div>
@@ -170,9 +173,10 @@ export default function FormularioFinanceiro({ tipo, modo = 'novo', gasto }: For
       <div className="flex justify-center">
         <button
           type="submit"
-          className="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-6 py-2 rounded-full"
+          aria-label={`Confirmar ${modo === 'editar' ? 'edição' : 'criação'} de ${tipo}`}
+          className="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-6 py-2 rounded-full transition-transform hover:scale-105"
         >
-          Adicionar {tipo}
+          {modo === 'editar' ? 'Salvar alterações' : `Adicionar ${tipo}`}
         </button>
       </div>
     </form>

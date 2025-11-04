@@ -32,8 +32,8 @@ export default function FiltragemRecebimento({
           <option value="" disabled>
             Selecione um tipo
           </option>
-          {tipos.map((tipo, index) => (
-            <option key={index} value={tipo}>
+          {tipos.map((tipo) => (
+            <option key={tipo} value={tipo}>
               {tipo}
             </option>
           ))}

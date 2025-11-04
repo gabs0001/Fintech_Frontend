@@ -8,26 +8,33 @@ type CelulaDescricaoProps = {
   abrirDrawer?: (titulo: string, descricao: string) => void;
 };
 
-export default function CelulaDescricao({ texto, titulo = 'Detalhes', abrirDrawer }: CelulaDescricaoProps) {
+export default function CelulaDescricao({
+  texto,
+  titulo = 'Detalhes',
+  abrirDrawer,
+}: CelulaDescricaoProps) {
   const [expandido, setExpandido] = useState(false);
 
   const handleVerMais = () => {
     if (abrirDrawer) {
       abrirDrawer(titulo, texto);
     } else {
-      setExpandido(!expandido);
+      setExpandido((prev) => !prev);
     }
   };
 
+  const textoExibido = expandido ? texto : texto.slice(0, 80) + (texto.length > 80 ? '...' : '');
+
   return (
-    <div className="relative">
-      <span className="block">
-        {expandido ? texto : texto.slice(0, 80) + (texto.length > 80 ? '...' : '')}
-      </span>
+    <div className="relative text-sm text-white">
+      <span className="block">{textoExibido}</span>
+
       {texto.length > 80 && (
         <button
-          onClick={ handleVerMais }
-          className="text-gray-200 text-sm mt-1 hover:underline cursor-pointer"
+          type="button"
+          onClick={handleVerMais}
+          className="text-teal-300 hover:underline mt-1"
+          aria-label={expandido ? 'Ver menos descrição' : 'Ver mais descrição'}
         >
           {abrirDrawer ? 'ver mais' : expandido ? 'ver menos' : 'ver mais'}
         </button>

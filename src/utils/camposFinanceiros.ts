@@ -55,7 +55,6 @@ export function getCamposPorTipo(tipo: 'gasto' | 'recebimento' | 'investimento' 
     ];
   }
 
-  // gasto
   return [
     {
       label: 'Categoria',

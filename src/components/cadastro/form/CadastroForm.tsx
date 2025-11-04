@@ -5,7 +5,7 @@ import { CadastroField } from '@/types/cadastro';
 import { useRouter } from 'next/navigation';
 
 export default function CadastroForm() {
-  const { formData, handleChange, handleSubmit, erro } = useCadastroForm(); //revisar esse erro
+  const { formData, handleChange, handleSubmit } = useCadastroForm();
   const router = useRouter();
 
   const fields: CadastroField[] = [
@@ -65,8 +65,6 @@ export default function CadastroForm() {
           )}
         </div>
       ))}
-
-      {erro && <p className="text-red-400 text-sm">{erro}</p>}
 
       <div className="flex justify-center">
         <button
