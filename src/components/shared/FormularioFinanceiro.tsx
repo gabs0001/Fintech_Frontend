@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFormularioFinanceiro } from '@/hooks/useFormularioFinanceiro';
 import { useCategoriaDinamica } from '@/hooks/useCategoriaDinamica';
 import CampoNovaCategoria from './CampoNovaCategoria';
@@ -49,22 +49,22 @@ export default function FormularioFinanceiro({
           let resultado: any[] = [];
 
           if (campo.api === 'categorias-gasto') {
-            resultado = await listarCategoriasGasto(token);
+            resultado = await listarCategoriasGasto(token) as any[];
             novasOpcoes[campo.name] = resultado.map((c) => c.nome);
           }
 
           if (campo.api === 'tipos-investimentos') {
-            resultado = await listarTiposInvestimento(token);
+            resultado = await listarTiposInvestimento(token)as any[];
             novasOpcoes[campo.name] = resultado.map((t) => t.nome);
           }
 
           if (campo.api === 'instituicoes') {
-            resultado = await listarInstituicoes(token);
+            resultado = await listarInstituicoes(token)as any[];
             novasOpcoes[campo.name] = resultado.map((i) => i.nome);
           }
 
           if (campo.api === 'tipos-recebimento') {
-            resultado = await listarTiposRecebimento(token);
+            resultado = await listarTiposRecebimento(token)as any[];
             novasOpcoes[campo.name] = resultado.map((r) => r.nome);
           }
         } catch (err) {

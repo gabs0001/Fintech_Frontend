@@ -16,9 +16,8 @@ export default function DetalheRecebimentoPage() {
   useEffect(() => {
     if (!id || !token) return;
 
-    buscarRecebimentoPorId(Number(id), token)
-      .then(setRecebimento)
-      .catch(() => setErro(true));
+    buscarRecebimentoPorId(Number(id), token).then((res) => setRecebimento(res as Recebimento))
+    
   }, [id, token]);
 
   if (erro) {

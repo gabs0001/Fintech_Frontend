@@ -13,6 +13,7 @@ import Overlay from "@/components/shared/Overlay";
 import { CampoPopUp } from "@/types/gastos";
 import JanelaPopUp from "@/components/shared/JanelaPopUp";
 import InvestimentoCard from "@/components/investimentos/cards/InvestimentoCard";
+import RotaProtegida from "@/components/shared/RotaProtegida";
 
 export default function InvestimentosPage() {
   const {
@@ -53,53 +54,55 @@ export default function InvestimentosPage() {
     });
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header navItems={navItems} />
+    <RotaProtegida>
+      <div className="min-h-screen flex flex-col">
+        <Header navItems={navItems} />
 
-      <main className="flex-grow w-full mx-auto my-4">
-        <Cta destaque="investimentos" />
+        <main className="flex-grow w-full mx-auto my-4">
+          <Cta destaque="investimentos" />
 
-        <section className="w-full mt-6">
-          <form name="form-investimentos" id="form-investimentos">
-            <FiltragemInvestimento
-              tipos={categoriasInvestimento}
-              onTipoChange={setTipoSelecionado}
-              onOrdenacaoChange={setOrdenacao}
-              onBuscaChange={setBuscaPorNome}
-            />
+          <section className="w-full mt-6">
+            <form name="form-investimentos" id="form-investimentos">
+              <FiltragemInvestimento
+                tipos={categoriasInvestimento}
+                onTipoChange={setTipoSelecionado}
+                onOrdenacaoChange={setOrdenacao}
+                onBuscaChange={setBuscaPorNome}
+              />
 
-            <div className="flex-row justify-center">
-              <div className="w-full sm:w-10/12 md:w-10/12 lg:w-9/12 xl:w-8/12 mx-auto">
-                <TableInvestimentos
+              <div className="flex-row justify-center">
+                <div className="w-full sm:w-10/12 md:w-10/12 lg:w-9/12 xl:w-8/12 mx-auto">
+                  <TableInvestimentos
+                    investimentos={investimentosFiltrados}
+                    onEditar={abrirPopup}
+                    onExcluir={excluirInvestimento}
+                  />
+                </div>
+
+                <Overlay ativo={overlayAtivo} onClick={fecharPopup} />
+
+                <JanelaPopUp
+                  aberto={popupAberto}
+                  onFechar={fecharPopup}
+                  onSalvar={salvarEdicao}
+                  onChange={(campo, valor) => atualizarCampo(campo, valor)}
+                  campos={campos}
+                />
+
+                <InvestimentoCard
                   investimentos={investimentosFiltrados}
                   onEditar={abrirPopup}
                   onExcluir={excluirInvestimento}
                 />
               </div>
 
-              <Overlay ativo={overlayAtivo} onClick={fecharPopup} />
+              <BotaoAdicionar texto="Novo Investimento" href="/investimentos/novo" />
+            </form>
+          </section>
+        </main>
 
-              <JanelaPopUp
-                aberto={popupAberto}
-                onFechar={fecharPopup}
-                onSalvar={salvarEdicao}
-                onChange={(campo, valor) => atualizarCampo(campo, valor)}
-                campos={campos}
-              />
-
-              <InvestimentoCard
-                investimentos={investimentosFiltrados}
-                onEditar={abrirPopup}
-                onExcluir={excluirInvestimento}
-              />
-            </div>
-
-            <BotaoAdicionar texto="Novo Investimento" href="/investimentos/novo" />
-          </form>
-        </section>
-      </main>
-
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </RotaProtegida>
   );
 }

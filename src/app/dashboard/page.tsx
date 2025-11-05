@@ -37,21 +37,31 @@ export default function HomePage() {
     const fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().split('T')[0];
 
     getDashboard(token, inicio, fim, 5)
-      .then((data) => {
-        setRecebimentos(data.recebimentos || []);
-        setGastos(data.gastos || []);
-        setSaldoMes(data.saldoMes || 0);
-      })
-      .catch((err) => console.error('Erro ao buscar dashboard:', err));
+    .then((data) => {
+      const dashboard = data as {
+        recebimentos: any[];
+        gastos: any[];
+        saldoMes: number;
+      };
+
+      setRecebimentos(dashboard.recebimentos || []);
+      setGastos(dashboard.gastos || []);
+      setSaldoMes(dashboard.saldoMes || 0);
+    })
+    .catch((err) => console.error('Erro ao buscar dashboard:', err));
 
     getTotalInvestido(token)
-      .then((valor) => setTotalInvestido(parseValor(valor)))
-      .catch((err) => console.error('Erro ao buscar total investido:', err));
+    .then((valor) => setTotalInvestido(parseValor(valor as string)))
+    .catch((err) => console.error('Erro ao buscar total investido:', err));
 
     getUltimoGasto(token)
-      .then((gasto) => setUltimoGasto(parseValor(gasto.valor)))
-      .catch(() => setUltimoGasto(0));
-  }, [token]);
+    .then((gasto) => {
+      const gastoTipado = gasto as { valor: string };
+      setUltimoGasto(parseValor(gastoTipado.valor));
+    })
+    .catch(() => setUltimoGasto(0));
+  }, 
+  [token]);
 
   const abrirDrawer = (titulo: string, descricao: string) => {
     console.log('Abrir drawer:', titulo, descricao);

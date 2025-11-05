@@ -17,7 +17,7 @@ export default function DetalheObjetivoPage() {
     if (!id || !token) return;
 
     buscarObjetivoFinanceiroPorId(Number(id), token)
-      .then(setObjetivo)
+      .then((res) => setObjetivo(res as Objetivo))
       .catch(() => setErro(true));
   }, [id, token]);
 

@@ -26,20 +26,30 @@ export function useHomePage() {
 
     getDashboard(token, inicio, fim, 5)
       .then((data) => {
-        setRecebimentos(data.recebimentos || []);
-        setGastos(data.gastos || []);
-        setSaldoMes(data.saldoMes || 0);
+        const dashboard = data as {
+          recebimentos: any[];
+          gastos: any[];
+          saldoMes: number;
+        };
+
+        setRecebimentos(dashboard.recebimentos || []);
+        setGastos(dashboard.gastos || []);
+        setSaldoMes(dashboard.saldoMes || 0);
       })
       .catch((err) => console.error('Erro ao buscar dashboard:', err));
 
     getTotalInvestido(token)
-      .then((valor) => setTotalInvestido(parseValor(valor)))
+      .then((valor) => setTotalInvestido(parseValor(valor as string)))
       .catch((err) => console.error('Erro ao buscar total investido:', err));
 
     getUltimoGasto(token)
-      .then((gasto) => setUltimoGasto(parseValor(gasto.valor)))
+      .then((gasto) => {
+        const gastoTipado = gasto as { valor: string };
+        setUltimoGasto(parseValor(gastoTipado.valor));
+      })
       .catch(() => setUltimoGasto(0));
-  }, [token]);
+  }, 
+  [token]);
 
   const abrirDrawer = (titulo: string, descricao: string) => {
     console.log('Abrir drawer:', titulo, descricao);

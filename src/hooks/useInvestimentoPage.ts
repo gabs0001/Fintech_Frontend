@@ -24,7 +24,7 @@ export function useInvestimentoPage() {
   useEffect(() => {
     if (!token) return;
     listarInvestimentos(token)
-      .then(setInvestimentos)
+      .then((res) => setInvestimentos(res as Investimento[]))
       .catch((err) => console.error('Erro ao buscar investimentos:', err));
   }, [token]);
 
@@ -53,8 +53,9 @@ export function useInvestimentoPage() {
         : await cadastrarInvestimento(investimentoEditado, token);
 
       setInvestimentos((prev) => {
-        const outros = prev.filter((i) => i.id !== investimentoSalvo.id);
-        return [...outros, investimentoSalvo];
+        const investimento = investimentoSalvo as Investimento;
+        const outros = prev.filter((i) => i.id !== investimento.id);
+        return [...outros, investimento];
       });
 
       fecharPopup();

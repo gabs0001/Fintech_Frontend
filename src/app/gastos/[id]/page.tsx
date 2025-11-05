@@ -18,8 +18,9 @@ export default function DetalheGastoPage() {
     if (!token || !id) return;
 
     buscarGastoPorId(Number(id), token)
-      .then(setGasto)
-      .catch(() => setErro(true));
+    .then((res) => setGasto(res as Gasto))
+    .catch(() => setErro(true));
+
   }, [id, token]);
 
   if (erro) {

@@ -13,6 +13,7 @@ import JanelaPopUp from "@/components/shared/JanelaPopUp";
 import { CampoPopUp } from "@/types/gastos";
 import TableObjetivos from "@/components/objetivos-financeiros/TableObjetivos";
 import ObjetivoCard from "@/components/objetivos-financeiros/cards/ObjetivoCard";
+import RotaProtegida from "@/components/shared/RotaProtegida";
 
 export default function ObjetivosFinanceirosPage() {
   const {
@@ -52,59 +53,61 @@ export default function ObjetivosFinanceirosPage() {
     });
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header navItems={navItems} />
+    <RotaProtegida>
+      <div className="min-h-screen flex flex-col">
+        <Header navItems={navItems} />
 
-      <main className="flex-grow w-full mx-auto my-4">
-        <Cta destaque="objetivos financeiros" />
+        <main className="flex-grow w-full mx-auto my-4">
+          <Cta destaque="objetivos financeiros" />
 
-        <section className="w-full mt-6">
-          <form name="form-objetivos" id="form-objetivos">
-            <FiltragemObjetivo
-              onBuscaChange={setBuscaPorNome}
-              onOrdenacaoChange={setOrdenacao}
-            />
+          <section className="w-full mt-6">
+            <form name="form-objetivos" id="form-objetivos">
+              <FiltragemObjetivo
+                onBuscaChange={setBuscaPorNome}
+                onOrdenacaoChange={setOrdenacao}
+              />
 
-            <div className="flex-row justify-center">
-              <div className="w-full sm:w-10/12 md:w-10/12 lg:w-9/12 xl:w-8/12 mx-auto">
-                <TableObjetivos
+              <div className="flex-row justify-center">
+                <div className="w-full sm:w-10/12 md:w-10/12 lg:w-9/12 xl:w-8/12 mx-auto">
+                  <TableObjetivos
+                    objetivos={objetivosFiltrados}
+                    onEditar={abrirEdicao}
+                    onExcluir={excluirObjetivo}
+                    abrirDrawer={abrirDrawer}
+                  />
+                </div>
+
+                <DrawerLateral
+                  aberto={drawerAberto}
+                  onFechar={fecharDrawer}
+                  titulo={tituloDrawer}
+                  descricao={descricaoDrawer}
+                />
+
+                <Overlay ativo={overlayAtivo} onClick={fecharPopup} />
+
+                <JanelaPopUp
+                  aberto={popupAberto}
+                  onFechar={fecharPopup}
+                  onSalvar={salvarEdicao}
+                  onChange={(campo, valor) => atualizarCampo(campo, valor)}
+                  campos={campos}
+                />
+
+                <ObjetivoCard
                   objetivos={objetivosFiltrados}
                   onEditar={abrirEdicao}
                   onExcluir={excluirObjetivo}
-                  abrirDrawer={abrirDrawer}
                 />
               </div>
 
-              <DrawerLateral
-                aberto={drawerAberto}
-                onFechar={fecharDrawer}
-                titulo={tituloDrawer}
-                descricao={descricaoDrawer}
-              />
+              <BotaoAdicionar texto="Novo Objetivo" href="/objetivos-financeiros/novo" />
+            </form>
+          </section>
+        </main>
 
-              <Overlay ativo={overlayAtivo} onClick={fecharPopup} />
-
-              <JanelaPopUp
-                aberto={popupAberto}
-                onFechar={fecharPopup}
-                onSalvar={salvarEdicao}
-                onChange={(campo, valor) => atualizarCampo(campo, valor)}
-                campos={campos}
-              />
-
-              <ObjetivoCard
-                objetivos={objetivosFiltrados}
-                onEditar={abrirEdicao}
-                onExcluir={excluirObjetivo}
-              />
-            </div>
-
-            <BotaoAdicionar texto="Novo Objetivo" href="/objetivos-financeiros/novo" />
-          </form>
-        </section>
-      </main>
-
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </RotaProtegida>
   );
 }

@@ -1,29 +1,52 @@
+import { fetcher } from '@/utils/fetcher';
+
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/recebimentos`;
 
-export async function listarRecebimentos(token: string) {
-  const res = await fetch(API_URL, {
+export async function listarRecebimentos(
+  token: string,
+  page = 1,
+  limit = 10,
+  sortBy = 'data',
+  order = 'desc',
+  filtros?: {
+    origem?: string;
+    inicio?: string;
+    fim?: string;
+    min?: number;
+    max?: number;
+  }
+) {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+    sortBy,
+    order,
+    ...(filtros?.origem && { origem: filtros.origem }),
+    ...(filtros?.inicio && { inicio: filtros.inicio }),
+    ...(filtros?.fim && { fim: filtros.fim }),
+    ...(filtros?.min && { min: String(filtros.min) }),
+    ...(filtros?.max && { max: String(filtros.max) }),
+  });
+
+  return fetcher(`${API_URL}?${params.toString()}`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  if (!res.ok) throw new Error('Erro ao listar recebimentos');
-  return res.json();
 }
 
 export async function buscarRecebimentoPorId(id: number, token: string) {
-  const res = await fetch(`${API_URL}/${id}`, {
+  return fetcher(`${API_URL}/${id}`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  if (!res.ok) throw new Error('Erro ao buscar recebimento por ID');
-  return res.json();
 }
 
 export async function cadastrarRecebimento(dados: any, token: string) {
-  const res = await fetch(API_URL, {
+  return fetcher(`${API_URL}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -31,12 +54,10 @@ export async function cadastrarRecebimento(dados: any, token: string) {
     },
     body: JSON.stringify(dados),
   });
-  if (!res.ok) throw new Error('Erro ao cadastrar recebimento');
-  return res.json();
 }
 
 export async function atualizarRecebimento(id: number, dados: any, token: string) {
-  const res = await fetch(`${API_URL}/${id}`, {
+  return fetcher(`${API_URL}/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -44,17 +65,13 @@ export async function atualizarRecebimento(id: number, dados: any, token: string
     },
     body: JSON.stringify(dados),
   });
-  if (!res.ok) throw new Error('Erro ao atualizar recebimento');
-  return res.json();
 }
 
 export async function excluirRecebimento(id: number, token: string) {
-  const res = await fetch(`${API_URL}/${id}`, {
+  return fetcher(`${API_URL}/${id}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  if (!res.ok) throw new Error('Erro ao excluir recebimento');
-  return res;
 }

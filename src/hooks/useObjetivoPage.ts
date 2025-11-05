@@ -25,7 +25,7 @@ export function useObjetivoPage() {
     if (!token) return;
 
     listarObjetivosFinanceiros(token)
-      .then(setObjetivos)
+      .then((res) => setObjetivos(res as Objetivo[]))
       .catch((err) => console.error('Erro ao buscar objetivos:', err));
   }, [token]);
 
@@ -48,9 +48,10 @@ export function useObjetivoPage() {
 
     try {
       const atualizado = await atualizarObjetivoFinanceiro(objetivoEditado.id, objetivoEditado, token);
-      setObjetivos((prev) =>
-        prev.map((o) => (o.id === atualizado.id ? atualizado : o))
-      );
+      setObjetivos((prev) => {
+        const objetivo = atualizado as Objetivo;
+        return prev.map((o) => (o.id === objetivo.id ? objetivo : o));
+      });
       fecharPopup();
     } catch (err) {
       console.error('Erro ao salvar objetivo:', err);

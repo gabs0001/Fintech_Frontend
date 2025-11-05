@@ -15,6 +15,7 @@ import JanelaPopUp from "@/components/shared/JanelaPopUp";
 import Overlay from "@/components/shared/Overlay";
 import BotaoAdicionar from "@/components/shared/BotaoAdicionar";
 import { CampoPopUp } from "@/types/gastos";
+import RotaProtegida from "@/components/shared/RotaProtegida";
 
 export default function GastoPage() {
   const {
@@ -63,60 +64,62 @@ export default function GastoPage() {
    });
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header navItems={navItems} />
+    <RotaProtegida>
+      <div className="min-h-screen flex flex-col">
+        <Header navItems={navItems} />
 
-      <main className="flex-grow w-full mx-auto my-4">
-        <Cta destaque="gastos" />
+        <main className="flex-grow w-full mx-auto my-4">
+          <Cta destaque="gastos" />
 
-        <section className="w-full mt-6">
-          <form name="form-gastos" id="form-gastos">
-            <FiltragemGasto
-              categorias={categoriasGasto}
-              onCategoriaChange={setCategoriaSelecionada}
-              onOrdenacaoChange={setOrdenacao}
-            />
+          <section className="w-full mt-6">
+            <form name="form-gastos" id="form-gastos">
+              <FiltragemGasto
+                categorias={categoriasGasto}
+                onCategoriaChange={setCategoriaSelecionada}
+                onOrdenacaoChange={setOrdenacao}
+              />
 
-            <div className="flex-row justify-center">
-              <div className="w-full sm:w-10/12 md:w-10/12 lg:w-9/12 xl:w-8/12 mx-auto">
-                <TableGastos
+              <div className="flex-row justify-center">
+                <div className="w-full sm:w-10/12 md:w-10/12 lg:w-9/12 xl:w-8/12 mx-auto">
+                  <TableGastos
+                    gastos={gastosFiltrados}
+                    onEditar={abrirEdicao}
+                    onExcluir={excluirGasto}
+                    abrirDrawer={abrirDrawer}
+                  />
+                </div>
+
+                <DrawerLateral
+                  aberto={drawerAberto}
+                  onFechar={fecharDrawer}
+                  titulo={tituloDrawer}
+                  descricao={descricaoDrawer}
+                />
+
+                <Overlay ativo={overlayAtivo} onClick={fecharPopup} />
+
+                <JanelaPopUp
+                  aberto={popupAberto}
+                  onFechar={fecharPopup}
+                  onSalvar={salvarEdicao}
+                  onChange={(campo, valor) => atualizarCampo(campo, valor)}
+                  campos={campos}
+                />
+
+                <GastoCard
                   gastos={gastosFiltrados}
                   onEditar={abrirEdicao}
                   onExcluir={excluirGasto}
-                  abrirDrawer={abrirDrawer}
                 />
               </div>
 
-              <DrawerLateral
-                aberto={drawerAberto}
-                onFechar={fecharDrawer}
-                titulo={tituloDrawer}
-                descricao={descricaoDrawer}
-              />
+              <BotaoAdicionar texto="Novo Gasto" href="/gastos/novo" />
+            </form>
+          </section>
+        </main>
 
-              <Overlay ativo={overlayAtivo} onClick={fecharPopup} />
-
-              <JanelaPopUp
-                aberto={popupAberto}
-                onFechar={fecharPopup}
-                onSalvar={salvarEdicao}
-                onChange={(campo, valor) => atualizarCampo(campo, valor)}
-                campos={campos}
-              />
-
-              <GastoCard
-                gastos={gastosFiltrados}
-                onEditar={abrirEdicao}
-                onExcluir={excluirGasto}
-              />
-            </div>
-
-            <BotaoAdicionar texto="Novo Gasto" href="/gastos/novo" />
-          </form>
-        </section>
-      </main>
-
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </RotaProtegida>
   );
 }

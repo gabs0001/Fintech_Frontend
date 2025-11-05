@@ -17,7 +17,7 @@ export default function DetalheInvestimentoPage() {
     if (!id || !token) return;
 
     buscarInvestimentoPorId(Number(id), token)
-      .then(setInvestimento)
+      .then((res) => setInvestimento(res as Investimento))
       .catch(() => setErro(true));
   }, [id, token]);
 

@@ -23,7 +23,7 @@ export function useGastoPage() {
   useEffect(() => {
     if (!token) return;
     listarGastos(token)
-      .then(setGastos)
+      .then((res) => setGastos(res as Gasto[]))
       .catch((err) => console.error("Erro ao listar gastos:", err));
   }, [token]);
 
@@ -50,8 +50,8 @@ export function useGastoPage() {
         : await cadastrarGasto(gastoEditado, token);
 
       setGastos((prev) => {
-        const outros = prev.filter((g) => g.id !== gastoSalvo.id);
-        return [...outros, gastoSalvo];
+        const outros = prev.filter((g) => g.id !== (gastoSalvo as Gasto).id);
+        return [...outros, gastoSalvo as Gasto];
       });
 
       fecharPopup();

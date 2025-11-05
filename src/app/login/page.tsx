@@ -20,7 +20,7 @@ export default function LoginPage() {
     setErro('');
 
     try {
-      const { token } = await login(email, senha);
+      const { token } = await login(email, senha) as { token: string };
       setToken(token);
       router.push('/dashboard');
     } catch (err) {

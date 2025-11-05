@@ -24,7 +24,7 @@ export function useRecebimentoPage() {
   useEffect(() => {
     if (!token) return;
     listarRecebimentos(token)
-      .then(setRecebimentos)
+      .then((res) => setRecebimentos(res as Recebimento[]))
       .catch((err) => console.error('Erro ao buscar recebimentos:', err));
   }, [token]);
 
@@ -47,9 +47,10 @@ export function useRecebimentoPage() {
 
     try {
       const atualizado = await atualizarRecebimento(recebimentoEditado.id, recebimentoEditado, token);
-      setRecebimentos((prev) =>
-        prev.map((r) => (r.id === atualizado.id ? atualizado : r))
-      );
+      setRecebimentos((prev) => {
+        const recebimento = atualizado as Recebimento;
+        return prev.map((r) => (r.id === recebimento.id ? recebimento : r));
+      });
       fecharPopup();
     } catch (err) {
       console.error('Erro ao salvar edição:', err);

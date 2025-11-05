@@ -14,18 +14,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('token');
-    if (stored) setToken(stored);
+    try {
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) setToken(storedToken);
+    } catch (error) {
+      console.error('Erro ao recuperar token do localStorage:', error);
+    }
   }, []);
 
   const login = (newToken: string) => {
-    localStorage.setItem('token', newToken);
-    setToken(newToken);
+    try {
+      localStorage.setItem('token', newToken);
+      setToken(newToken);
+    } catch (error) {
+      console.error('Erro ao salvar token no localStorage:', error);
+    }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
+    try {
+      localStorage.removeItem('token');
+      setToken(null);
+    } catch (error) {
+      console.error('Erro ao remover token do localStorage:', error);
+    }
   };
 
   return (
@@ -37,6 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth deve ser usado dentro de AuthProvider');
+  if (!context) {
+    throw new Error('useAuth deve ser usado dentro de AuthProvider');
+  }
   return context;
 }
