@@ -15,7 +15,7 @@ export function useInvestimentoPage() {
   const [investimentos, setInvestimentos] = useState<Investimento[]>([]);
   const [tipoSelecionado, setTipoSelecionado] = useState<string>('');
   const [buscaPorNome, setBuscaPorNome] = useState<string>('');
-  const [ordenacao, setOrdenacao] = useState<'banco' | 'corretora' | 'data' | null>(null);
+  const [ordenacao, setOrdenacao] = useState<'banco' | 'corretora' | 'data' | 'instituicao' | null>(null);
 
   const [popupAberto, setPopupAberto] = useState(false);
   const [overlayAtivo, setOverlayAtivo] = useState(false);

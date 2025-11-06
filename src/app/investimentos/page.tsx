@@ -1,12 +1,12 @@
 'use client';
 
+import { useEffect, useState } from "react";
 import Cta from "@/components/shared/Cta";
 import Footer from "@/components/shared/Footer";
 import Header from "@/components/shared/Header";
 import FiltragemInvestimento from "@/components/investimentos/FiltragemInvestimento";
 import BotaoAdicionar from "@/components/shared/BotaoAdicionar";
 import { navItems } from "@/data/nav";
-import { categoriasInvestimento } from "@/data/categorias";
 import { useInvestimentoPage } from "@/hooks/useInvestimentoPage";
 import TableInvestimentos from "@/components/investimentos/TableInvestimentos";
 import Overlay from "@/components/shared/Overlay";
@@ -14,6 +14,7 @@ import { CampoPopUp } from "@/types/gastos";
 import JanelaPopUp from "@/components/shared/JanelaPopUp";
 import InvestimentoCard from "@/components/investimentos/cards/InvestimentoCard";
 import RotaProtegida from "@/components/shared/RotaProtegida";
+import { Categoria } from "@/types/categoria";
 
 export default function InvestimentosPage() {
   const {
@@ -34,22 +35,52 @@ export default function InvestimentosPage() {
     excluirInvestimento
   } = useInvestimentoPage();
 
+  const [tiposInvestimento, setTiposInvestimento] = useState<Categoria[]>([]);
+
+  useEffect(() => {
+    async function fetchTipos() {
+      try {
+        const res = await fetch("http://localhost:8080/api/tipos-investimentos");
+        const data: Categoria[] = await res.json();
+        setTiposInvestimento([...data, { id: 0, descricao: "Mostrar Todos" }]);
+      } catch (error) {
+        console.error("Erro ao buscar tipos de investimento:", error);
+        setTiposInvestimento([{ id: 0, descricao: "Mostrar Todos" }]);
+      }
+    }
+
+    fetchTipos();
+  }, []);
+
   const campos: CampoPopUp[] = [
-    { nome: 'nome', label: 'Nome', tipo: 'text', valor: investimentoEditado?.nome ?? '' },
-    { nome: 'tipo', label: 'Tipo', tipo: 'text', valor: investimentoEditado?.tipo ?? '' },
-    { nome: 'banco', label: 'Banco', tipo: 'text', valor: investimentoEditado?.banco ?? '' },
-    { nome: 'corretora', label: 'Corretora', tipo: 'text', valor: investimentoEditado?.corretora ?? '' },
-    { nome: 'valor', label: 'Valor', tipo: 'number', valor: investimentoEditado?.valor ?? 0 },
-    { nome: 'data', label: 'Data', tipo: 'date', valor: investimentoEditado?.data ?? '', readOnly: true },
+    { nome: 'nomeAplicacao', label: 'Nome da Aplicação', tipo: 'text', valor: investimentoEditado?.nomeAplicacao ?? '' },
+    { nome: 'tipoInvestimento', label: 'Tipo', tipo: 'text', valor: investimentoEditado?.tipoInvestimento ?? '' },
+    { nome: 'instituicao', label: 'Instituição', tipo: 'text', valor: investimentoEditado?.instituicao ?? '' },
+    { nome: 'valorAplicacao', label: 'Valor', tipo: 'number', valor: investimentoEditado?.valorAplicacao ?? 0 },
+    { nome: 'dataRealizacao', label: 'Data de Realização', tipo: 'date', valor: investimentoEditado?.dataRealizacao ?? '', readOnly: true },
+    { nome: 'dataVencimento', label: 'Data de Vencimento', tipo: 'date', valor: investimentoEditado?.dataVencimento ?? '', readOnly: true },
   ];
 
+  const hoje = new Date();
+  const inicioDoMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+  const fimDoMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+
   const investimentosFiltrados = investimentos
-    .filter((i) => tipoSelecionado === 'Mostrar Todos' || tipoSelecionado === '' || i.tipo === tipoSelecionado)
-    .filter((i) => i.nome.toLowerCase().includes(buscaPorNome.toLowerCase()))
+    .filter((i) =>
+      tipoSelecionado === 'Mostrar Todos' ||
+      tipoSelecionado === '' ||
+      i.tipoInvestimento === tipoSelecionado
+    )
+    .filter((i) =>
+      i.nomeAplicacao?.toLowerCase().includes(buscaPorNome.toLowerCase())
+    )
+    .filter((i) => {
+      const data = new Date(i.dataRealizacao);
+      return data >= inicioDoMes && data <= fimDoMes;
+    })
     .sort((a, b) => {
-      if (ordenacao === 'banco') return a.banco.localeCompare(b.banco);
-      if (ordenacao === 'corretora') return a.corretora.localeCompare(b.corretora);
-      if (ordenacao === 'data') return new Date(b.data).getTime() - new Date(a.data).getTime();
+      if (ordenacao === 'instituicao') return (a.instituicao || '').localeCompare(b.instituicao || '');
+      if (ordenacao === 'data') return new Date(b.dataRealizacao || 0).getTime() - new Date(a.dataRealizacao || 0).getTime();
       return 0;
     });
 
@@ -64,7 +95,7 @@ export default function InvestimentosPage() {
           <section className="w-full mt-6">
             <form name="form-investimentos" id="form-investimentos">
               <FiltragemInvestimento
-                tipos={categoriasInvestimento}
+                tipos={tiposInvestimento}
                 onTipoChange={setTipoSelecionado}
                 onOrdenacaoChange={setOrdenacao}
                 onBuscaChange={setBuscaPorNome}

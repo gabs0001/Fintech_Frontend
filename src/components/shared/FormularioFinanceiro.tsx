@@ -13,6 +13,7 @@ import {
 import { listarTiposInvestimento } from '@/services/tipoInvestimentoService';
 import { listarInstituicoes } from '@/services/instituicaoService';
 import { listarTiposRecebimento } from '@/services/tipoRecebimento';
+import { Categoria } from '@/types/categoria';
 
 type FormularioFinanceiroProps = {
   tipo: 'gasto' | 'recebimento' | 'investimento' | 'objetivo';
@@ -46,26 +47,26 @@ export default function FormularioFinanceiro({
         if (campo.type !== 'select' || !campo.api) continue;
 
         try {
-          let resultado: any[] = [];
+          let resultado: Categoria[] = [];
 
           if (campo.api === 'categorias-gasto') {
-            resultado = await listarCategoriasGasto(token) as any[];
-            novasOpcoes[campo.name] = resultado.map((c) => c.nome);
+            resultado = await listarCategoriasGasto(token) as Categoria[];
+            novasOpcoes[campo.name] = resultado.map((c) => c.descricao);
           }
 
-          if (campo.api === 'tipos-investimentos') {
-            resultado = await listarTiposInvestimento(token)as any[];
-            novasOpcoes[campo.name] = resultado.map((t) => t.nome);
+          if (campo.api === 'tipos-investimento') {
+            resultado = await listarTiposInvestimento(token) as Categoria[];
+            novasOpcoes[campo.name] = resultado.map((t) => t.descricao);
           }
 
           if (campo.api === 'instituicoes') {
-            resultado = await listarInstituicoes(token)as any[];
-            novasOpcoes[campo.name] = resultado.map((i) => i.nome);
+            resultado = await listarInstituicoes(token) as Categoria[];
+            novasOpcoes[campo.name] = resultado.map((i) => i.descricao);
           }
 
           if (campo.api === 'tipos-recebimento') {
-            resultado = await listarTiposRecebimento(token)as any[];
-            novasOpcoes[campo.name] = resultado.map((r) => r.nome);
+            resultado = await listarTiposRecebimento(token) as Categoria[];
+            novasOpcoes[campo.name] = resultado.map((r) => r.descricao);
           }
         } catch (err) {
           console.error(`Erro ao carregar opções para ${campo.name}:`, err);
@@ -79,14 +80,14 @@ export default function FormularioFinanceiro({
   }, [token, tipo]);
 
   const adicionarCategoria = async () => {
-    const nome = inputRef.current?.value?.trim();
-    if (!nome || !token) return;
+    const descricao = inputRef.current?.value?.trim();
+    if (!descricao || !token) return;
 
     try {
-      await cadastrarCategoriaGasto({ nome }, token);
+      await cadastrarCategoriaGasto({ descricao }, token);
       setOpcoesDinamicas((prev) => ({
         ...prev,
-        categoria: [...(prev.categoria || []), nome],
+        categoria: [...(prev.categoria || []), descricao],
       }));
       if (inputRef.current) inputRef.current.value = '';
       campoRef.current?.classList.add('hidden');
@@ -130,8 +131,10 @@ export default function FormularioFinanceiro({
                 className="bg-white text-black px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
               >
                 <option value="" disabled>Selecione</option>
-                {(opcoesDinamicas[campo.name] || []).map((opt) => (
-                  <option key={opt} value={opt}>{opt}</option>
+                {(opcoesDinamicas[campo.name] || []).map((opt, index) => (
+                  <option key={`${campo.name}-${index}`} value={opt}>
+                    {opt}
+                  </option>
                 ))}
                 {campo.permitirNovo && <option value="outros">+ Nova opção</option>}
               </select>

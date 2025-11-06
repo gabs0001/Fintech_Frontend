@@ -36,7 +36,7 @@ export default function TableGastos({ gastos, onEditar, onExcluir, abrirDrawer }
                   abrirDrawer={abrirDrawer}
                 />
               </td>
-              <td className="px-4 py-3">R$ {gasto.valor}</td>
+              <td className="px-4 py-3">R$ {Number(gasto.valor).toFixed(2)}</td>
               <td className="px-4 py-3">{gasto.data}</td>
               <td className="px-4 py-3 text-center">
                 <div className="flex justify-center gap-2">

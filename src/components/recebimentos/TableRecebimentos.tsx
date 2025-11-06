@@ -33,11 +33,11 @@ export default function TableRecebimentos({
         <tbody className="text-sm text-white">
           {recebimentos.map((r) => (
             <tr key={r.id} className="border-t border-white/20 text-center">
-              <td className="px-4 py-3 text-left">{r.tipo}</td>
+              <td className="px-4 py-3 text-left">{r.tipoRecebimento}</td>
               <td className="px-4 py-3 text-left">
                 <CelulaDescricao
                   texto={r.descricao}
-                  titulo={`Detalhes de ${r.tipo}`}
+                  titulo={`Detalhes de ${r.tipoRecebimento}`}
                   abrirDrawer={abrirDrawer}
                 />
               </td>

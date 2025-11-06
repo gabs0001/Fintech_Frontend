@@ -51,8 +51,8 @@ export default function FiltragemInvestimento({
             Selecione o tipo de investimento
           </option>
           {tipos.map((tipo) => (
-            <option key={tipo} value={tipo}>
-              {tipo}
+            <option key={tipo.id} value={tipo.descricao}>
+              {tipo.descricao}
             </option>
           ))}
         </select>

@@ -8,7 +8,7 @@ export type Objetivo = {
   nome: string;
   descricao: string;
   valor: number;
-  data: string;
+  dataConclusao: string;
 };
 
 export type TableObjetivosProps = {

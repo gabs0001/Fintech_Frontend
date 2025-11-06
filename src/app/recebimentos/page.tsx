@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from "react";
 import Cta from "@/components/shared/Cta";
 import Header from "@/components/shared/Header";
 import FiltragemRecebimento from "@/components/recebimentos/FiltragemRecebimento";
@@ -7,7 +8,6 @@ import BotaoAdicionar from "@/components/shared/BotaoAdicionar";
 import { navItems } from "@/data/nav";
 import { CampoPopUp } from "@/types/gastos";
 import { useRecebimentoPage } from "@/hooks/useRecebimentoPage";
-import { tiposRecebimento } from "@/data/categorias";
 import DrawerLateral from "@/components/shared/DrawerLateral";
 import Overlay from "@/components/shared/Overlay";
 import JanelaPopUp from "@/components/shared/JanelaPopUp";
@@ -15,6 +15,7 @@ import TableRecebimentos from "@/components/recebimentos/TableRecebimentos";
 import RecebimentoCard from "@/components/recebimentos/cards/RecebimentoCard";
 import RotaProtegida from "@/components/shared/RotaProtegida";
 import Footer from "@/components/shared/Footer";
+import { Categoria } from "@/types/categoria";
 
 export default function RecebimentosPage() {
   const {
@@ -38,15 +39,32 @@ export default function RecebimentosPage() {
     descricaoDrawer,
   } = useRecebimentoPage();
 
+  const [tiposRecebimento, setTiposRecebimento] = useState<Categoria[]>([]);
+
+  useEffect(() => {
+    async function fetchTipos() {
+      try {
+        const res = await fetch("http://localhost:8080/api/tipos-recebimentos");
+        const data: Categoria[] = await res.json();
+        setTiposRecebimento([...data, { id: 0, descricao: "Mostrar Todos" }]);
+      } catch (error) {
+        console.error("Erro ao buscar tipos de recebimento:", error);
+        setTiposRecebimento([{ id: 0, descricao: "Mostrar Todos" }]);
+      }
+    }
+
+    fetchTipos();
+  }, []);
+
   const campos: CampoPopUp[] = [
-    { nome: 'tipo', label: 'Tipo', tipo: 'text', valor: recebimentoEditado?.tipo ?? '' },
+    { nome: 'tipo', label: 'Tipo', tipo: 'text', valor: recebimentoEditado?.tipoRecebimento ?? '' },
     { nome: 'descricao', label: 'Descrição', tipo: 'textarea', valor: recebimentoEditado?.descricao ?? '' },
     { nome: 'valor', label: 'Valor', tipo: 'number', valor: recebimentoEditado?.valor ?? 0 },
     { nome: 'data', label: 'Data', tipo: 'date', valor: recebimentoEditado?.data ?? '', readOnly: true },
   ];
 
   const recebimentosFiltrados = recebimentos
-    .filter((r) => tipoSelecionado === 'Mostrar Todos' || tipoSelecionado === '' || r.tipo === tipoSelecionado)
+    .filter((r) => tipoSelecionado === 'Mostrar Todos' || tipoSelecionado === '' || r.tipoRecebimento === tipoSelecionado)
     .sort((a, b) => {
       if (ordenacao === 'valor') return b.valor - a.valor;
       if (ordenacao === 'data') return new Date(b.data).getTime() - new Date(a.data).getTime();

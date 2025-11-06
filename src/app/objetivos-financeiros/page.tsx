@@ -41,14 +41,14 @@ export default function ObjetivosFinanceirosPage() {
     { nome: 'nome', label: 'Nome', tipo: 'text', valor: objetivoEditado?.nome ?? '' },
     { nome: 'descricao', label: 'Descrição', tipo: 'textarea', valor: objetivoEditado?.descricao ?? '' },
     { nome: 'valor', label: 'Valor', tipo: 'number', valor: objetivoEditado?.valor ?? 0 },
-    { nome: 'data', label: 'Data', tipo: 'date', valor: objetivoEditado?.data ?? '', readOnly: true },
+    { nome: 'data', label: 'Data', tipo: 'date', valor: objetivoEditado?.dataConclusao ?? '', readOnly: true },
   ];
 
   const objetivosFiltrados = objetivos
     .filter((o) => o.nome.toLowerCase().includes(buscaPorNome.toLowerCase()))
     .sort((a, b) => {
       if (ordenacao === 'valor') return b.valor - a.valor;
-      if (ordenacao === 'data') return new Date(b.data).getTime() - new Date(a.data).getTime();
+      if (ordenacao === 'data') return new Date(b.dataConclusao).getTime() - new Date(a.dataConclusao).getTime();
       return 0;
     });
 

@@ -16,15 +16,15 @@ export default function InvestimentoCard({ investimentos, onEditar, onExcluir }:
             id={`investimento-${inv.id}`}
             className="text-center text-lg font-semibold text-[#f5f5f5] mb-4"
           >
-            {inv.nome}
+            {inv.nomeAplicacao}
           </h3>
 
           <div className="text-sm text-white space-y-1 mb-3">
-            <p><strong>Tipo:</strong> {inv.tipo}</p>
-            <p><strong>Valor:</strong> R$ {inv.valor.toFixed(2)}</p>
-            <p><strong>Data:</strong> {inv.data}</p>
-            <p><strong>Banco:</strong> {inv.banco}</p>
-            <p><strong>Corretora:</strong> {inv.corretora}</p>
+            <p><strong>Tipo:</strong> {inv.tipoInvestimento}</p>
+            <p><strong>Valor:</strong> R$ {inv.valorAplicacao.toFixed(2)}</p>
+            <p><strong>Realização:</strong> {inv.dataRealizacao ? new Date(inv.dataRealizacao).toLocaleDateString() : 'N/A'}</p>
+            <p><strong>Vencimento:</strong> {inv.dataVencimento ? new Date(inv.dataVencimento).toLocaleDateString() : 'N/A'}</p>
+            <p><strong>Instituição:</strong> {inv.instituicao ?? 'N/A'}</p>
           </div>
 
           <hr className="my-3" />

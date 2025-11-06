@@ -42,7 +42,7 @@ export default function TableObjetivos({
                 />
               </td>
               <td className="px-4 py-3 text-left">R$ {objetivo.valor.toFixed(2)}</td>
-              <td className="px-4 py-3 hidden lg:table-cell text-left">{objetivo.data}</td>
+              <td className="px-4 py-3 hidden lg:table-cell text-left">{objetivo.dataConclusao}</td>
               <td className="px-4 py-3">
                 <div className="flex justify-center gap-2">
                   <BotaoAcao tipo="edit" onClick={() => onEditar(objetivo)} />

@@ -1,13 +1,26 @@
 export type FormularioFinanceiroData = {
-  nome?: string;
-  categoria?: string;
-  banco?: string;
-  corretora?: string;
   descricao?: string;
   valor?: string;
   data?: string;
-  hora?: string;
   vencimento?: string;
+
+  categoriaGasto?: {
+    id: number;
+    nome: string;
+  };
+
+  tipoRecebimento?: string;
+  tipoInvestimento?: string;
+
+  banco?: string;
+  corretora?: string;
+  instituicao?: string;
+
+  dataGasto?: string;
+  dataRecebimento?: string;
+  dataRealizacao?: string;
+  dataVencimento?: string;
+  dataConclusao?: string;
 };
 
 export type CampoFinanceiro = {
@@ -16,6 +29,6 @@ export type CampoFinanceiro = {
   type: 'text' | 'number' | 'date' | 'time' | 'textarea' | 'select';
   placeholder?: string;
   options?: { value: string; label: string; disabled?: boolean }[];
-  api?: 'categorias-gasto' | 'tipos-investimentos' | 'instituicoes' | 'tipos-recebimento';
+  api?: 'categorias-gasto' | 'tipos-investimento' | 'instituicoes' | 'tipos-recebimento';
   permitirNovo?: boolean;
 };

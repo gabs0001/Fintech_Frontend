@@ -39,14 +39,14 @@ export default function HomePage() {
     getDashboard(token, inicio, fim, 5)
     .then((data) => {
       const dashboard = data as {
-        recebimentos: any[];
-        gastos: any[];
-        saldoMes: number;
+        ultimosRecebimentos: Recebimento[];
+        ultimosGastos: Gasto[];
+        saldoPeriodo: number;
       };
 
-      setRecebimentos(dashboard.recebimentos || []);
-      setGastos(dashboard.gastos || []);
-      setSaldoMes(dashboard.saldoMes || 0);
+      setRecebimentos(dashboard.ultimosRecebimentos || []);
+      setGastos(dashboard.ultimosGastos || []);
+      setSaldoMes(dashboard.saldoPeriodo || 0);
     })
     .catch((err) => console.error('Erro ao buscar dashboard:', err));
 

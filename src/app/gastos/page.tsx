@@ -1,7 +1,7 @@
 'use client';
 
+import { useEffect, useState } from "react";
 import { useGastoPage } from "@/hooks/useGastoPage";
-import { categoriasGasto } from "@/data/categorias";
 import { navItems } from "@/data/nav";
 
 import Header from "@/components/shared/Header";
@@ -16,6 +16,7 @@ import Overlay from "@/components/shared/Overlay";
 import BotaoAdicionar from "@/components/shared/BotaoAdicionar";
 import { CampoPopUp } from "@/types/gastos";
 import RotaProtegida from "@/components/shared/RotaProtegida";
+import { Categoria } from "@/types/categoria";
 
 export default function GastoPage() {
   const {
@@ -39,6 +40,23 @@ export default function GastoPage() {
     fecharDrawer
   } = useGastoPage();
 
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+
+  useEffect(() => {
+    async function fetchCategorias() {
+      try {
+        const res = await fetch("http://localhost:8080/api/categorias-gastos");
+        const data: Categoria[] = await res.json();
+        setCategorias([...data, { id: 0, descricao: "Mostrar Todos" }]);
+      } catch (error) {
+        console.error("Erro ao buscar categorias de gasto:", error);
+        setCategorias([{ id: 0, descricao: "Mostrar Todos" }]);
+      }
+    }
+
+    fetchCategorias();
+  }, []);
+
   const campos: CampoPopUp[] = [
     { nome: 'categoria', label: 'Categoria', tipo: 'text', valor: gastoEditado?.categoria ?? '' },
     { nome: 'descricao', label: 'Descrição', tipo: 'textarea', valor: gastoEditado?.descricao ?? '' },
@@ -61,7 +79,7 @@ export default function GastoPage() {
         return new Date(b.data).getTime() - new Date(a.data).getTime();
       }
       return 0;
-   });
+    });
 
   return (
     <RotaProtegida>
@@ -74,7 +92,7 @@ export default function GastoPage() {
           <section className="w-full mt-6">
             <form name="form-gastos" id="form-gastos">
               <FiltragemGasto
-                categorias={categoriasGasto}
+                categorias={categorias}
                 onCategoriaChange={setCategoriaSelecionada}
                 onOrdenacaoChange={setOrdenacao}
               />

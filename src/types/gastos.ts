@@ -1,5 +1,5 @@
 export type FiltragemGastoProps = {
-  categorias: string[];
+  categorias: { id: number; descricao: string }[];
   onCategoriaChange: (categoria: string) => void;
   onOrdenacaoChange?: (criterio: 'valor' | 'data') => void;
 };

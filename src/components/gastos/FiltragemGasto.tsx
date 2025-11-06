@@ -32,8 +32,8 @@ export default function FiltragemGasto({
             Selecione uma categoria
           </option>
           {categorias.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
+            <option key={cat.id} value={cat.descricao}>
+              {cat.descricao}
             </option>
           ))}
         </select>

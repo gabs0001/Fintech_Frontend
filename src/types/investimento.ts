@@ -1,19 +1,19 @@
 export type FiltragemInvestimentoProps = {
-  tipos: string[];
+  tipos: { id: number; descricao: string }[];
   onTipoChange: (tipo: string) => void;
-  onOrdenacaoChange?: (criterio: 'banco' | 'corretora' | 'data') => void;
+  onOrdenacaoChange?: (criterio: 'banco' | 'corretora' | 'data' | 'instituicao') => void;
   onBuscaChange?: (busca: string) => void;
 };
 
 export type Investimento = {
   id: number;
-  nome: string;
-  tipo: string; 
-  banco: string;
-  corretora: string;
-  valor: number;
-  data: string;
-  vencimento?: string;
+  nomeAplicacao: string;
+  valorAplicacao: number;
+  descricao: string;
+  dataRealizacao: string;
+  dataVencimento?: string;
+  tipoInvestimento: string;
+  instituicao: string;
 };
 
 export type TableInvestimentosProps = {

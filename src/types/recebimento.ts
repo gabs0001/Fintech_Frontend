@@ -1,12 +1,12 @@
 export type FiltragemRecebimentoProps = {
-  tipos: string[];
+  tipos: { id: number; descricao: string }[];
   onTipoChange?: (tipo: string) => void;
   onOrdenacaoChange?: (criterio: 'valor' | 'data') => void;
 };
 
 export type Recebimento = {
   id: number;
-  tipo: string;
+  tipoRecebimento: string;
   descricao: string;
   valor: number;
   data: string;
